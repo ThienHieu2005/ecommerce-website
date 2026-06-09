@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <rect width="500" height="500" fill="#0066ff" />
+
+  <g transform="translate(250, 250)">
+    <path d="M -65,-130 
+             L 25,-130 
+             C 85,-130 115,-95 115,-45 
+             C 115,5 85,35 25,35 
+             L -25,35 
+             L -25,130 
+             L -65,130 Z 
+             M -25,-10 
+             L 20,-10 
+             C 55,-10 75,-25 75,-47 
+             C 75,-70 55,-85 20,-85 
+             L -25,-85 Z" 
+          fill="#e1f0ff" 
+          stroke="#ffffff" 
+          stroke-width="4" 
+          stroke-linejoin="round" />
+  </g>
+</svg>
