@@ -5,4 +5,3 @@ build
 .vscode
 *.log
 .DS_Store
-Database/init.sql
