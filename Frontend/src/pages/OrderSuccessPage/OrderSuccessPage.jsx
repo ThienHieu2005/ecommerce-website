@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import * as S from './style'
 
 import * as CartService from '../../services/CartService'
-import { resetOrder } from '../../redux/slices/orderSlice'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -27,7 +26,7 @@ const OrderSuccess = () => {
                     )
 
                     window.dispatchEvent(new Event("cartUpdated"))
-                    dispatch(resetOrder())
+
                 }
             } catch (error) {
                 console.log("Lỗi xóa giỏ hàng:", error)

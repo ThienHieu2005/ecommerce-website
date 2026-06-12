@@ -9,7 +9,6 @@ import * as UserService from "../../services/UserService";
 import { updateUser } from "../../redux/slices/UserSlice";
 import * as OrderService from "../../services/OrderService";
 import * as CartService from "../../services/CartService";
-import { resetOrder } from "../../redux/slices/orderSlice";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 
@@ -110,7 +109,6 @@ const PaymentPage = () => {
               await CartService.deleteAllCartByUser(user.id, user.access_token);
               window.dispatchEvent(new Event("cartUpdated"));
               setCartItems([]);
-              dispatch(resetOrder());
               message.success("Đặt hàng thành công");
               navigate("/order-success");
             } catch (error) {

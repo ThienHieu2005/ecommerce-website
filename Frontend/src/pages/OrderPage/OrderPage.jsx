@@ -118,12 +118,10 @@ const PaymentPage = () => {
     setIsOpenModalUpdateInfo(false);
   };
 
-  const mutationUpdate = useMutationHooks(
-    (data) => {
-      const { id, ...rest } = data;
-      return UserService.updateUser(id, rest);
-    }
-  );
+  const mutationUpdate = useMutationHooks((data) => {
+    const { id, ...rest } = data;
+    return UserService.updateUser(id, rest, user.access_token);
+  });
 
   const handleOnChangeDetail = (e) => {
     setStateUserDetail({
@@ -277,7 +275,7 @@ const PaymentPage = () => {
 
       <ModalComponent
         title="Cập nhật thông tin"
-        open={isOpenModalUpdateInfo}
+        isOpen={isOpenModalUpdateInfo}
         onCancel={handleCancelUpdate}
         onOk={() => formUpdate.submit()}
       >

@@ -5,7 +5,7 @@ const ModalComponent = ({
     title = 'Modal',
     isOpen = false,
     children,
-    width = 900,
+    width = 600,
     onCancel,
     footer,
     ...rests

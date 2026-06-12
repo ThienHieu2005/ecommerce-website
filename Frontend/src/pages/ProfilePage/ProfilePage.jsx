@@ -24,7 +24,7 @@ const ProfilePage = () => {
         ({ id, data, access_token }) => UserService.updateUser(id, data, access_token)
     );
 
-    const { data, isSuccess, isError, isPending } = mutation;
+    const { isPending } = mutation;
 
     useEffect(() => {
         setName(user?.name || '');
@@ -35,17 +35,6 @@ const ProfilePage = () => {
         setAvatar(user?.avatar || '');
     }, [user]);
 
-    useEffect(() => {
-        if (isSuccess && data?.status === 'OK') {
-            message.success("Cập nhật thông tin thành công!");
-            dispatch(updateUser(data?.data));
-            localStorage.setItem('user', JSON.stringify(data?.data));
-        }
-
-        if (isError) {
-            message.error("Có lỗi xảy ra, vui lòng thử lại!");
-        }
-    }, [isSuccess, isError, data, dispatch]);
 
     const handleOnChangeName = (e) => setName(e.target.value);
     const handleOnChangeEmail = (e) => setEmail(e.target.value);
@@ -76,18 +65,47 @@ const ProfilePage = () => {
     };
 
     const handleOnChangeUpdate = () => {
-        mutation.mutate({
-            id: user?.id,
-            data: {
-                name,
-                email,
-                phone,
-                address,
-                city,
-                avatar
+        if (!user?.id || !user?.access_token) {
+            message.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
+            return;
+        }
+
+        mutation.mutate(
+            {
+                id: user?.id,
+                data: {
+                    name,
+                    email,
+                    phone,
+                    address,
+                    city,
+                    avatar
+                },
+                access_token: user?.access_token
             },
-            access_token: user?.access_token
-        });
+            {
+                onSuccess: (res) => {
+                    if (res?.status === 'OK') {
+                        message.success("Cập nhật thông tin thành công!");
+
+                        const newUser = {
+                            ...user,
+                            ...res?.data,
+                            access_token: user?.access_token,
+                            id: user?.id
+                        };
+
+                        dispatch(updateUser(newUser));
+                        localStorage.setItem('user', JSON.stringify(newUser));
+                    } else {
+                        message.error(res?.message || "Cập nhật thất bại!");
+                    }
+                },
+                onError: () => {
+                    message.error("Có lỗi xảy ra, vui lòng thử lại!");
+                }
+            }
+        );
     };
 
     return (

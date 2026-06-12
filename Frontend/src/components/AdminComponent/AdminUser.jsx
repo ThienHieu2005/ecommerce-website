@@ -370,6 +370,7 @@ const AdminUser = () => {
                 title="Chi tiết người dùng"
                 isOpen={isOpenDrawer}
                 onCancel={handleCloserDrawer}
+                footer={null}
             >
                 <Form
                     name="basic"
@@ -399,20 +400,43 @@ const AdminUser = () => {
                         label={<span style={{ fontWeight: 600 }}>Email</span>}
                         name="email"
                         rules={[
-                            { required: true, message: 'Please input your email!' }
+                            {
+                                required: true,
+                                message: 'Vui lòng nhập email!'
+                            },
+                            {
+                                type: 'email',
+                                message: 'Email không đúng định dạng!'
+                            }
                         ]}
                     >
-                        <Input onChange={handleOnChangeDetail} name="email" />
+                        <Input
+                            onChange={handleOnChangeDetail}
+                            name="email"
+                            placeholder="Ví dụ: hieu@gmail.com"
+                        />
                     </Form.Item>
 
                     <Form.Item
                         label={<span style={{ fontWeight: 600 }}>Phone</span>}
                         name="phone"
                         rules={[
-                            { required: true, message: 'Please input your phone!' }
+                            {
+                                required: true,
+                                message: 'Vui lòng nhập số điện thoại!'
+                            },
+                            {
+                                pattern: /^(0[0-9]{9})$/,
+                                message: 'Số điện thoại phải có 10 số và bắt đầu bằng 0!'
+                            }
                         ]}
                     >
-                        <Input onChange={handleOnChangeDetail} name="phone" />
+                        <Input
+                            onChange={handleOnChangeDetail}
+                            name="phone"
+                            maxLength={10}
+                            placeholder="Ví dụ: 0987654321"
+                        />
                     </Form.Item>
 
                     <Form.Item
