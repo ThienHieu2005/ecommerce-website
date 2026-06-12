@@ -27,20 +27,65 @@ const ProfilePage = () => {
     const { isPending } = mutation;
 
     useEffect(() => {
-        setName(user?.name || '');
-        setEmail(user?.email || '');
-        setPhone(user?.phone || '');
-        setAddress(user?.address || '');
-        setCity(user?.city || '');
-        setAvatar(user?.avatar || '');
+        setName(user?.name || user?.Name || '');
+        setEmail(user?.email || user?.Email || '');
+        setPhone(user?.phone || user?.Phone || '');
+        setAddress(user?.address || user?.Address || '');
+        setCity(user?.city || user?.City || '');
+        setAvatar(user?.avatar || user?.Avatar || '');
     }, [user]);
-
 
     const handleOnChangeName = (e) => setName(e.target.value);
     const handleOnChangeEmail = (e) => setEmail(e.target.value);
     const handleOnChangePhone = (e) => setPhone(e.target.value);
     const handleOnChangeAddress = (e) => setAddress(e.target.value);
     const handleOnChangeCity = (e) => setCity(e.target.value);
+
+    const validateUserInfo = () => {
+        const emailTrim = email.trim();
+        const phoneTrim = phone.trim();
+        const nameTrim = name.trim();
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^(0[0-9]{9}|\+84[0-9]{9})$/;
+
+        if (!nameTrim) {
+            message.error("Vui lòng nhập họ và tên!");
+            return false;
+        }
+
+        if (!emailTrim) {
+            message.error("Vui lòng nhập email!");
+            return false;
+        }
+
+        if (!emailRegex.test(emailTrim)) {
+            message.error("Email không đúng định dạng!");
+            return false;
+        }
+
+        if (!phoneTrim) {
+            message.error("Vui lòng nhập số điện thoại!");
+            return false;
+        }
+
+        if (!phoneRegex.test(phoneTrim)) {
+            message.error("Số điện thoại không đúng định dạng!");
+            return false;
+        }
+
+        return true;
+    };
+
+    const getBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    };
 
     const handleOnChangeAvatar = async ({ fileList }) => {
         const file = fileList[0];
@@ -54,49 +99,52 @@ const ProfilePage = () => {
         }
     };
 
-    const getBase64 = (file) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = (error) => reject(error);
-        });
-    };
-
     const handleOnChangeUpdate = () => {
         if (!user?.id || !user?.access_token) {
             message.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
             return;
         }
 
+        if (!validateUserInfo()) {
+            return;
+        }
+
         mutation.mutate(
             {
-                id: user?.id,
+                id: user.id,
                 data: {
-                    name,
-                    email,
-                    phone,
-                    address,
-                    city,
+                    name: name.trim(),
+                    email: email.trim(),
+                    phone: phone.trim(),
+                    address: address.trim(),
+                    city: city.trim(),
                     avatar
                 },
-                access_token: user?.access_token
+                access_token: user.access_token
             },
             {
                 onSuccess: (res) => {
                     if (res?.status === 'OK') {
                         message.success("Cập nhật thông tin thành công!");
 
-                        const newUser = {
-                            ...user,
-                            ...res?.data,
-                            access_token: user?.access_token,
-                            id: user?.id
+                        const payloadUpdateRedux = {
+                            Id: user.id,
+                            Name: res?.data?.Name || name.trim(),
+                            Email: res?.data?.Email || email.trim(),
+                            Phone: res?.data?.Phone || phone.trim(),
+                            Address: res?.data?.Address || address.trim(),
+                            City: res?.data?.City || city.trim(),
+                            Avatar: res?.data?.Avatar || avatar,
+                            IsAdmin: res?.data?.IsAdmin ?? user.isAdmin,
+                            access_token: user.access_token
                         };
 
-                        dispatch(updateUser(newUser));
-                        localStorage.setItem('user', JSON.stringify(newUser));
+                        dispatch(updateUser(payloadUpdateRedux));
+
+                        localStorage.setItem(
+                            'user',
+                            JSON.stringify(payloadUpdateRedux)
+                        );
                     } else {
                         message.error(res?.message || "Cập nhật thất bại!");
                     }

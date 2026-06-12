@@ -148,24 +148,31 @@ const PaymentPage = () => {
     mutationUpdate.mutate(
       { id: rowSelected, ...values },
       {
-        onSuccess: () => {
+        onSuccess: (res) => {
           setIsOpenModalUpdateInfo(false);
 
-          dispatch(updateUser({
+          const payloadUpdateRedux = {
+            Id: user.id,
             Name: values.name,
+            Email: user.email,
             Phone: values.phone,
             Address: values.address,
             City: values.city,
-            Email: user.email,
             Avatar: user.avatar,
-            Id: user.id,
-            IsAdmin: user.isAdmin
-          }));
+            IsAdmin: user.isAdmin,
+            access_token: user.access_token
+          };
+
+          dispatch(updateUser(payloadUpdateRedux));
+
+          localStorage.setItem(
+            'user',
+            JSON.stringify(payloadUpdateRedux)
+          );
         }
       }
     );
   };
-
   return (
     <S.Container>
       <S.Title>Giỏ hàng</S.Title>
@@ -299,9 +306,21 @@ const PaymentPage = () => {
           <Form.Item
             label="Phone"
             name="phone"
-            rules={[{ required: true, message: 'Please input your phone!' }]}
+            rules={[
+              { required: true, message: 'Vui lòng nhập số điện thoại!' },
+              {
+                pattern: /^0\d{9}$/,
+                message: 'Số điện thoại phải có 10 số và bắt đầu bằng số 0!'
+              }
+            ]}
+            getValueFromEvent={(e) => e.target.value.replace(/\D/g, '').slice(0, 10)}
           >
-            <Input onChange={handleOnChangeDetail} name="phone" />
+            <Input
+              name="phone"
+              maxLength={10}
+              placeholder="Nhập số điện thoại"
+              onChange={handleOnChangeDetail}
+            />
           </Form.Item>
 
           <Form.Item
