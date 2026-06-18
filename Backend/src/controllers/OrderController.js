@@ -2,27 +2,27 @@ const OrderService = require('../services/OrderService')
 
 const createOrder = async (req, res) => {
     try {
-        console.log('API HIT'); // 🔥 1
+        console.log('API HIT'); 
 
         const { paymentMethod, itemsPrice, shippingPrice, totalPrice, fullName, address, city, phone } = req.body
 
         if (!paymentMethod || itemsPrice == null || shippingPrice == null || totalPrice == null || !fullName || !address || !city || !phone) {
-            console.log('VALIDATION FAIL'); // 🔥 2
+            console.log('VALIDATION FAIL'); 
             return res.status(200).json({
                 status: 'ERR',
                 message: 'The input is required'
             })
         }
 
-        console.log('CALL SERVICE'); // 🔥 3
+        console.log('CALL SERVICE'); 
 
         const response = await OrderService.createOrder(req.body)
 
-        console.log('SERVICE DONE', response); // 🔥 4
+        console.log('SERVICE DONE', response); 
 
         return res.status(200).json(response)
     } catch (e) {
-        console.log('ERROR', e); // 🔥 5
+        console.log('ERROR', e); 
         return res.status(500).json({
             message: e.message
         })
