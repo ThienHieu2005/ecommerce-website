@@ -1,15 +1,16 @@
 export const styles = {
   container: {
     padding: '24px',
+    marginBottom: '24px',
     maxWidth: '1200px',
-    margin: '0 auto',
+    margin: '0 auto 100px auto',
     backgroundColor: '#fff',
   },
   backLink: {
     display: 'flex',
     alignItems: 'center',
     color: '#1677ff',
-    marginBottom: '20px',
+    marginBottom: '40px',
     cursor: 'pointer',
   },
   productImage: {

@@ -54,75 +54,85 @@ const PaymentPage = () => {
     fetchCart();
   }, [user?.id, user?.access_token]);
 
-  const handleAddOrder = () => {
+  const handleAddOrder = async () => {
     if (
-      user?.id &&
-      user?.name &&
-      user?.address &&
-      user?.city &&
-      user?.phone &&
-      cartItems?.length > 0
+      !user?.id ||
+      !user?.name ||
+      !user?.address ||
+      !user?.city ||
+      !user?.phone ||
+      cartItems?.length === 0
     ) {
-      const formattedItems = cartItems.map((item) => ({
-        product: item.product || item.productId || item.id,
-        name: item.name,
-        amount: item.amount,
-        image: item.image || '',
-        price: item.price,
-        discount: item.discount || 0
-      }));
+      alert("Thiếu thông tin hoặc giỏ hàng trống!");
+      return;
+    }
 
+    const formattedItems = cartItems.map((item) => ({
+      product: item.product || item.productId || item.id,
+      name: item.name,
+      amount: item.amount,
+      image: item.image || "",
+      price: item.price,
+      discount: item.discount || 0,
+    }));
+
+    const orderData = {
+      userId: user.id,
+      orderItems: formattedItems,
+      fullName: user.name,
+      address: user.address,
+      city: user.city,
+      phone: user.phone,
+      paymentMethod,
+      deliveryMethod,
+      itemsPrice: totalPrice,
+      shippingPrice: 0,
+      totalPrice: totalPrice,
+      isPaid: false,
+    };
+
+    try {
+      // Nếu chọn VNPAY thì chưa tạo đơn hàng
+      if (paymentMethod === "VNPAY") {
+        const paymentRes = await OrderService.createVnpayPayment(
+          {
+            amount: totalPrice,
+            orderData,
+          },
+          user.access_token
+        );
+
+        if (paymentRes?.status === "OK") {
+          window.location.href = paymentRes.paymentUrl;
+          return;
+        }
+
+        message.error("Không tạo được link thanh toán VNPAY");
+        return;
+      }
+
+      // Nếu chọn COD thì tạo đơn hàng ngay
       mutationAddOrder.mutate(
         {
           access_token: user.access_token,
-          userId: user.id,
-          orderItems: formattedItems,
-          fullName: user.name,
-          address: user.address,
-          city: user.city,
-          phone: user.phone,
-          paymentMethod,
-          deliveryMethod,
-          itemsPrice: totalPrice,
-          shippingPrice: 0,
-          totalPrice: totalPrice,
-          isPaid: false
+          ...orderData,
         },
         {
-          onSuccess: async (data) => {
-            try {
-              if (paymentMethod === "VNPAY") {
-                const paymentRes = await OrderService.createVnpayPayment(
-                  {
-                    orderId: data?.data?.Id || data?.data?.id,
-                    amount: totalPrice
-                  },
-                  user.access_token
-                );
-
-                if (paymentRes?.status === "OK") {
-                  window.location.href = paymentRes.paymentUrl;
-                  return;
-                }
-              }
-
-              await CartService.deleteAllCartByUser(user.id, user.access_token);
-              window.dispatchEvent(new Event("cartUpdated"));
-              setCartItems([]);
-              message.success("Đặt hàng thành công");
-              navigate("/order-success");
-            } catch (error) {
-              console.log("Lỗi xử lý sau đặt hàng:", error);
-              message.error("Có lỗi khi xử lý đơn hàng");
-            }
+          onSuccess: async () => {
+            await CartService.deleteAllCartByUser(user.id, user.access_token);
+            window.dispatchEvent(new Event("cartUpdated"));
+            setCartItems([]);
+            message.success("Đặt hàng thành công");
+            navigate("/order-success");
           },
           onError: () => {
             message.error("Đặt hàng thất bại");
-          }
+          },
         }
       );
-    } else {
-      alert("Thiếu thông tin hoặc giỏ hàng trống!");
+    } catch (error) {
+      console.log("Lỗi đặt hàng:", error);
+      message.error("Có lỗi khi xử lý đơn hàng");
     }
   };
 

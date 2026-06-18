@@ -4,6 +4,7 @@ export const WrapperFooter = styled.footer`
     background-color: #1a1a1a;
     color: #ffffff;
     padding: 60px 5% 30px 5%;
+    margin-top: 24px;
     font-family: Arial, sans-serif;
     box-sizing: border-box;
 `;

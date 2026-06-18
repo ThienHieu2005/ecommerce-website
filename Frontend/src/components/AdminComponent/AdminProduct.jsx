@@ -444,7 +444,7 @@ const AdminProduct = () => {
             price: Number(stateProductDetail.price),
             rating: Number(stateProductDetail.rating),
             countInStock: Number(stateProductDetail.countInStock),
-            discount: Number(stateProductDetail.discount) // ✅ QUAN TRỌNG
+            discount: Number(stateProductDetail.discount)
         })
     }
     const handleOnChangeImage = async ({ fileList }) => {

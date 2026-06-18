@@ -56,7 +56,7 @@ export const WrapperLoadMore = styled.div`
 
 export const WrapperButtonMore = styled.button`
     padding: 10px 28px;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
 
     border-radius: 10px;
     border: none;
@@ -67,8 +67,6 @@ export const WrapperButtonMore = styled.button`
     font-weight: 600;
 
     cursor: pointer;
-
-    box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
 
     transition: 0.3s;
 

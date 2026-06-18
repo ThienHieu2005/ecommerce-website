@@ -2,6 +2,11 @@ const crypto = require("crypto");
 const qs = require("qs");
 const OrderService = require("../services/OrderService");
 
+// Lưu tạm đơn hàng chờ thanh toán VNPAY
+// Lưu ý: cách này dùng tạm cho đồ án/local.
+// Nếu deploy thật nên lưu vào database.
+const pendingOrders = new Map();
+
 const sortObject = (obj) => {
     let sorted = {};
     let str = [];
@@ -26,7 +31,15 @@ const createVnpayPayment = async (req, res) => {
     try {
         process.env.TZ = "Asia/Ho_Chi_Minh";
 
-        const { orderId, amount } = req.body;
+        // Sửa chỗ này: nhận amount và orderData, không nhận orderId nữa
+        const { amount, orderData } = req.body;
+
+        if (!amount || !orderData) {
+            return res.status(400).json({
+                status: "ERR",
+                message: "Thiếu amount hoặc orderData",
+            });
+        }
 
         const tmnCode = process.env.VNP_TMNCODE;
         const secretKey = process.env.VNP_HASHSECRET;
@@ -56,6 +69,12 @@ const createVnpayPayment = async (req, res) => {
             ipAddr = "127.0.0.1";
         }
 
+        // Tạo mã giao dịch tạm thay cho orderId
+        const txnRef = Date.now().toString();
+
+        // Lưu tạm dữ liệu đơn hàng theo mã giao dịch
+        pendingOrders.set(txnRef, orderData);
+
         let vnp_Params = {};
 
         vnp_Params["vnp_Version"] = "2.1.0";
@@ -63,10 +82,12 @@ const createVnpayPayment = async (req, res) => {
         vnp_Params["vnp_TmnCode"] = tmnCode;
         vnp_Params["vnp_Locale"] = "vn";
         vnp_Params["vnp_CurrCode"] = "VND";
-        vnp_Params["vnp_TxnRef"] = String(orderId);
+
+        // Sửa chỗ này: dùng txnRef, không dùng orderId
+        vnp_Params["vnp_TxnRef"] = txnRef;
 
         vnp_Params["vnp_OrderInfo"] =
-            "Thanh toan don hang " + orderId;
+            "Thanh toan don hang " + txnRef;
 
         vnp_Params["vnp_OrderType"] = "other";
         vnp_Params["vnp_Amount"] = Number(amount) * 100;
@@ -98,6 +119,8 @@ const createVnpayPayment = async (req, res) => {
             });
 
         console.log("===== VNPAY DEBUG =====");
+        console.log("TXN REF:", txnRef);
+        console.log("ORDER DATA:", orderData);
         console.log("SIGN DATA:", signData);
         console.log("SECURE HASH:", signed);
         console.log("PAYMENT URL:", vnpUrl);
@@ -119,34 +142,50 @@ const createVnpayPayment = async (req, res) => {
 
 const vnpayReturn = async (req, res) => {
     try {
+        const responseCode = req.query.vnp_ResponseCode;
+        const transactionStatus = req.query.vnp_TransactionStatus;
 
-        const responseCode =
-            req.query.vnp_ResponseCode;
-
-        const transactionStatus =
-            req.query.vnp_TransactionStatus;
-
-        const orderId =
-            req.query.vnp_TxnRef;
+        // Đây là txnRef đã tạo ở createVnpayPayment
+        const txnRef = req.query.vnp_TxnRef;
 
         if (
             responseCode === "00" &&
             transactionStatus === "00"
         ) {
+            // Lấy lại đơn hàng đã lưu tạm
+            const orderData = pendingOrders.get(txnRef);
 
-            await OrderService.updatePaidOrder(orderId);
+            if (!orderData) {
+                console.log("Không tìm thấy đơn hàng tạm:", txnRef);
+
+                return res.redirect(
+                    "http://localhost:3000/paymentFailed"
+                );
+            }
+
+            // Thanh toán thành công rồi mới tạo đơn hàng
+            await OrderService.createOrder({
+                ...orderData,
+                isPaid: true,
+                paidAt: new Date(),
+            });
+
+            // Xóa đơn hàng tạm sau khi tạo thành công
+            pendingOrders.delete(txnRef);
 
             return res.redirect(
                 "http://localhost:3000/order-success"
             );
         }
 
+        // Nếu thanh toán thất bại thì không tạo đơn hàng
+        pendingOrders.delete(txnRef);
+
         return res.redirect(
             "http://localhost:3000/paymentFailed"
         );
 
     } catch (e) {
-
         console.log("VNPAY RETURN ERROR:", e);
 
         return res.redirect(
