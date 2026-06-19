@@ -1,23 +1,23 @@
 const sql = require('mssql');
 
 const config = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    server: process.env.DB_SERVER,
-    database: process.env.DB_DATABASE,
-    port: Number(process.env.DB_PORT),
+    user: 'sa',
+    password: 'hieu',
+    server: 'localhost',
+    database: 'ECOMMERCE',
     options: {
         encrypt: false,
         trustServerCertificate: true
     }
 };
 
+// Hàm kết nối
 const connectDB = async () => {
     try {
         await sql.connect(config);
-        console.log("Kết nối DB thành công");
+        console.log('Kết nối DB thành công');
     } catch (err) {
-        console.log("Lỗi kết nối DB:", err);
+        console.log('Lỗi kết nối DB:', err);
     }
 };
 
