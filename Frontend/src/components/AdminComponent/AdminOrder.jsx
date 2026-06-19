@@ -69,10 +69,19 @@ const AdminOrder = () => {
     const onUpdateOrder = () => {
         const values = formUpdate.getFieldsValue()
 
-        mutationUpdate.mutate({
+        const payload = {
             id: rowSelected,
             isDelivered: values.isDelivered
-        })
+        }
+
+        // Nếu chọn Đã giao thì tự động chuyển sang Đã thanh toán
+        if (values.isDelivered === true) {
+            payload.isPaid = true
+            payload.paidAt = new Date().toISOString()
+            payload.deliveredAt = new Date().toISOString()
+        }
+
+        mutationUpdate.mutate(payload)
     }
 
     const handleSearch = (selectedKeys, confirm) => {
