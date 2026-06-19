@@ -1,6 +1,6 @@
 const sql = require("mssql");
 
-// ================= CREATE USER =================
+// ================ CREATE PRODUCT ================
 
 const createProduct = (newProduct) => {
     return new Promise(async (resolve, reject) => {
