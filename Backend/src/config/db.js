@@ -11,6 +11,11 @@ const config = {
         trustServerCertificate: true
     }
 };
+// Ghi đè sql.connect để tránh lỗi TypeError khi gọi sql.connect() không truyền tham số ở các service
+const originalConnect = sql.connect;
+sql.connect = function (cfg) {
+    return originalConnect.call(sql, cfg || config);
+};
 
 const connectDB = async () => {
     try {
