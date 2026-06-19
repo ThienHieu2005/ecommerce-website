@@ -5,8 +5,8 @@ import {
   UserOutlined,
   ShoppingCartOutlined
 } from "@ant-design/icons";
-import logo from '../../assets/Logo.png'
-import TopBar from '../../assets/TopBar.png'
+import logo from "../../assets/Logo.png";
+import TopBar from "../../assets/TopBar.png";
 import {
   Button,
   Input,
@@ -14,7 +14,7 @@ import {
   Popover,
   AutoComplete
 } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import * as UserService from "../../services/UserService";
@@ -29,6 +29,7 @@ const HeaderComponent = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [userAvatar, setUserAvatar] = useState("");
   const [search, setSearch] = useState("");
@@ -36,6 +37,7 @@ const HeaderComponent = () => {
 
   const [products, setProducts] = useState([]);
   const [options, setOptions] = useState([]);
+  const [typeProducts, setTypeProducts] = useState([]);
 
   const handleNavigateLogin = () => {
     navigate("/sign-in");
@@ -68,9 +70,6 @@ const HeaderComponent = () => {
 
     fetchProducts();
   }, []);
-
-
-  const [typeProducts, setTypeProducts] = useState([]);
 
   const fetchAllTypeProduct = async () => {
     const res = await ProductService.getAllTypeProduct();
@@ -134,6 +133,21 @@ const HeaderComponent = () => {
     setOptions(newOptions);
   };
 
+  const handleSubmitSearch = (value) => {
+    setSearch(value);
+    dispatch(searchProduct(value));
+
+    // Chỉ khi đang ở trang chủ thì mới chuyển sang trang tất cả sản phẩm
+    if (value.trim() && location.pathname === "/") {
+      navigate("/products");
+    }
+  };
+  const handleResetSearch = () => {
+    setSearch("");
+    setOptions([]);
+    dispatch(searchProduct(""));
+  };
+
   const fetchCartCount = async () => {
     try {
       if (!user?.id || !user?.access_token) {
@@ -171,7 +185,7 @@ const HeaderComponent = () => {
         handleCartUpdated
       );
     };
-  }, [user?.id]);
+  }, [user?.id, user?.access_token]);
 
   return (
     <>
@@ -181,6 +195,7 @@ const HeaderComponent = () => {
           alt="topbar"
         />
       </S.TopBar>
+
       <S.Header>
         <S.Logo onClick={() => navigate("/")}>
           <img
@@ -197,8 +212,7 @@ const HeaderComponent = () => {
             value={search}
             onSearch={handleSearch}
             onSelect={(value) => {
-              setSearch(value);
-              dispatch(searchProduct(value));
+              handleSubmitSearch(value);
             }}
           >
             <Input.Search
@@ -208,7 +222,7 @@ const HeaderComponent = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onSearch={(value) => {
-                dispatch(searchProduct(value));
+                handleSubmitSearch(value);
               }}
             />
           </AutoComplete>
@@ -252,8 +266,8 @@ const HeaderComponent = () => {
           )}
         </S.Action>
       </S.Header>
-      <S.WrapperTypeProduct>
 
+      <S.WrapperTypeProduct onClick={handleResetSearch}>
         <TypeProduct
           key="all"
           name="Tất cả sản phẩm"
@@ -265,7 +279,6 @@ const HeaderComponent = () => {
             name={item.Type}
           />
         ))}
-
       </S.WrapperTypeProduct>
     </>
   );

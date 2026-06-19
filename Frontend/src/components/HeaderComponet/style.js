@@ -8,6 +8,9 @@ export const Header = styled(Row)`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 `;
 
 export const TextHeader = styled.span`

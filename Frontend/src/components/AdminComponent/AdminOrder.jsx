@@ -230,6 +230,7 @@ const AdminOrder = () => {
                 title="Chi tiết đơn hàng"
                 isOpen={isOpenDrawer}
                 onCancel={() => setIsOpenDrawer(false)}
+                footer={null}
             >
                 {orderDetail && (
                     <>
@@ -343,17 +344,24 @@ const AdminOrder = () => {
                                 </Form.Item>
                             </div>
 
-                            <Button
-                                type="primary"
-                                htmlType="submit"
+                            <div
                                 style={{
-                                    marginTop: '24px',
-                                    borderRadius: '6px',
-                                    fontWeight: 500
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
+                                    marginTop: '24px'
                                 }}
                             >
-                                Lưu thay đổi
-                            </Button>
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                    style={{
+                                        borderRadius: '6px',
+                                        fontWeight: 500
+                                    }}
+                                >
+                                    Cập nhật
+                                </Button>
+                            </div>
                         </Form>
                     </>
                 )}

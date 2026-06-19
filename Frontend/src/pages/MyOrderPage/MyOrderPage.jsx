@@ -166,7 +166,7 @@ const MyOrderPage = () => {
                     {formatPrice(order.TotalPrice)}
                   </S.TotalPrice>
 
-                  {!order.IsDelivered && (
+                  {!order.IsDelivered && !order.IsPaid && (
                     <S.CancelButton
                       onClick={() => handleCancelOrder(order.Id)}
                     >
