@@ -12,9 +12,7 @@ const createProduct = async (req, res) => {
             });
         }
 
-
-
-
+        
         const response = await ProductService.createProduct(req.body)
         return res.status(200).json(response)
     } catch (e) {
