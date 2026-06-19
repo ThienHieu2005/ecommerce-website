@@ -159,7 +159,7 @@ const vnpayReturn = async (req, res) => {
                 console.log("Không tìm thấy đơn hàng tạm:", txnRef);
 
                 return res.redirect(
-                    "http://localhost:3000/paymentFailed"
+                    `${process.env.CLIENT_URL || "http://localhost:3000"}/paymentFailed`
                 );
             }
 
@@ -174,7 +174,7 @@ const vnpayReturn = async (req, res) => {
             pendingOrders.delete(txnRef);
 
             return res.redirect(
-                "http://localhost:3000/order-success"
+                `${process.env.CLIENT_URL || "http://localhost:3000"}/order-success`
             );
         }
 
@@ -182,14 +182,14 @@ const vnpayReturn = async (req, res) => {
         pendingOrders.delete(txnRef);
 
         return res.redirect(
-            "http://localhost:3000/paymentFailed"
+            `${process.env.CLIENT_URL || "http://localhost:3000"}/paymentFailed`
         );
 
     } catch (e) {
         console.log("VNPAY RETURN ERROR:", e);
 
         return res.redirect(
-            "http://localhost:3000/paymentFailed"
+            `${process.env.CLIENT_URL || "http://localhost:3000"}/paymentFailed`
         );
     }
 };
